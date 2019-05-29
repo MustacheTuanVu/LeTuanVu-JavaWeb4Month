@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.laptrinhjavaweb.entity.BuildingEntity;
 
-import com.laptrinhjavaweb.jdbc.AbstractJDBC;
-
 @WebServlet(urlPatterns = { "/admin-home" })
 public class HomeController extends HttpServlet {
 
@@ -25,12 +23,12 @@ public class HomeController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		AbstractJDBC<?> abstractJDBC = new AbstractJDBC<Object>();
+		//AbstractJDBC<?> abstractJDBC = new AbstractJDBC<Object>();
 
 		/*--------------------*/
 		String query = "SELECT * FROM building";
-		List<BuildingEntity> building = abstractJDBC.query(query, BuildingEntity.class);
-		request.setAttribute("building", building);
+		//List<BuildingEntity> building = abstractJDBC.query(query, BuildingEntity.class);
+		//request.setAttribute("building", building);
 		RequestDispatcher rd = request.getRequestDispatcher("/views/admin/home.jsp");
 		rd.forward(request, response);
 	}

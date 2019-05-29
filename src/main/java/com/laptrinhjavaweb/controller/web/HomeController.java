@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.laptrinhjavaweb.entity.BuildingEntity;
-import com.laptrinhjavaweb.jdbc.AbstractJDBC;
 
 @WebServlet(urlPatterns = {"/trang-chu"})
 public class HomeController extends HttpServlet{
@@ -24,13 +23,13 @@ public class HomeController extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		AbstractJDBC<?> abstractJDBC = new AbstractJDBC<Object>();
+		//AbstractJDBC<?> abstractJDBC = new AbstractJDBC<Object>();
 		
 		/*--------------------*/
 		String query = "SELECT * FROM building";
-		List<BuildingEntity> building = abstractJDBC.query(query, BuildingEntity.class);
-		System.out.println(building.size());
-		request.setAttribute("building",building);
+		//List<BuildingEntity> building = abstractJDBC.query(query, BuildingEntity.class);
+		//System.out.println(building.size());
+		//request.setAttribute("building",building);
 		/*--------------------*/
 		
 		
