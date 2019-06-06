@@ -13,6 +13,11 @@
 - [5. Chức năng sort](#2752019sort)
 - [6. Chức năng phân trang](#2752019page)
 - [Lâm sửa](#meo)
+[III. Bài tập ngày 3/6/2019](#362019)
+- [1. Fix chức năng tìm kiếm nhiều điều kiện](#362019search)
+- [2. Fix chức năng tìm kiếm theo id](#362019findid)
+- [3. Fix chức năng sort và phân trang](#362019sort)
+- [4. Fix chức năng xóa](#362019delete)
 
 ===========================
 
@@ -62,5 +67,42 @@ Xin chào, Today I Learn
 
 - Phân trang.
 - https://youtu.be/RNAqYQBkxRA?list=PLabnTFbva3l0aGsFsuf4Ku9TjZcpRAo2i
+
+<a name="362019"></a>
+## III. Bài tập ngày 3/6/2019
+
+<a name="362019search"></a>
+### 1. Fix chức năng tìm kiếm theo nhiều điều kiện
+
+- Sửa khúc nào là int thì phải dùng =.
+- Khúc nào là string thì dùng like
+- Sửa tham số truyền vào với kiểu là Map<String, Object> property.
+- Thêm tham số Pageble pageble
+- Thêm tham số Object... where
+- Xóa 3 tham số Integer page, String sortBy, String sortType
+- https://youtu.be/ka9myQsFBqU.
+
+<a name="362019findid"></a>
+### 2. Fix chức năng tìm kiếm theo id
+
+- Chỉ truyền mỗi ID.
+- Bỏ cách truyền bằng object.
+- Trả về T thay vì list<T>
+- https://youtu.be/oNOsy8gZ6ho.
+
+<a name="362019sort"></a>
+### 3. Fix chức năng sort và phân trang
+
+- Thêm package paging.
+- Sửa tham số truyền vào cho phương thức search.
+- Sửa lỗi không chuyển trang được
+- https://youtu.be/7jDDM6OMMP8
+
+<a name="362019delete"></a>
+### 4. Fix chức năng xóa
+
+- Chỉ truyền mỗi ID.
+- Là void, không trả về bất cứ thứ gì.
+- https://youtu.be/_X3CahZwRJQ
 
 
