@@ -1,7 +1,10 @@
 package com.laptrinhjavaweb.controller.admin.api;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -12,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laptrinhjavaweb.dto.BuildingDTO;
 import com.laptrinhjavaweb.entity.BuildingEntity;
+import com.laptrinhjavaweb.paging.PageRequest;
+import com.laptrinhjavaweb.paging.Sorter;
 import com.laptrinhjavaweb.service.IBuildingService;
 import com.laptrinhjavaweb.service.impl.BuildingService;
 import com.laptrinhjavaweb.utils.HttpUtil;
@@ -38,14 +43,30 @@ public class BuildingAPI extends HttpServlet{
 		response.setContentType("application/json"); 
 		BuildingDTO buidingDTO =  HttpUtil.of(request.getReader()).toModel(BuildingDTO.class); //XONG, CHỈ VIỆC BINDING Building qua
 		// trả lại về json
-		int page = Integer.parseInt(request.getParameter("page"));
-		String sortBy = request.getParameter("sortBy");
-		String sortType = request.getParameter("sortType");
 		String action = request.getParameter("action");
+		
+		Map<String, Object> proprerty = new HashMap<>();
+		proprerty.put("name", buidingDTO.getName());
+		proprerty.put("ward", buidingDTO.getWard());
+		proprerty.put("structure", buidingDTO.getStructure());
+		
+		//proprerty.put("maxPageItem", );
+		//proprerty.put("page", );
+		
+		
+		long id = 0;
 		switch (action) {
 		case "search":
-			List<BuildingEntity> buildingEntities = buildingService.search(buidingDTO,page, sortBy, sortType);
-			mapper.writeValue(response.getOutputStream(), buildingEntities);
+			int page = Integer.parseInt(request.getParameter("page"));
+			int maxPage = Integer.parseInt(request.getParameter("maxPage"));
+			String sortBy = request.getParameter("sortBy");
+			String sortType = request.getParameter("sortType");
+			
+			Sorter sorter = new Sorter(sortBy, sortType);
+			PageRequest pageRequest = new PageRequest(page, maxPage, sorter);
+			
+			List<BuildingEntity> buildingEntities = buildingService.search(proprerty,pageRequest);
+			mapper.writeValue(response.getOutputStream(), buildingEntities);//
 			break;
 		case "save":
 			buidingDTO = buildingService.save(buidingDTO);
@@ -56,11 +77,12 @@ public class BuildingAPI extends HttpServlet{
 			mapper.writeValue(response.getOutputStream(), buidingDTO);
 			break;
 		case "delete":
-			buidingDTO = buildingService.delete(buidingDTO);
-			mapper.writeValue(response.getOutputStream(), buidingDTO);
+			id = Long.parseLong(request.getParameter("id"));
+			buildingService.delete(id);
 			break;
 		case "findID":
-			List<BuildingEntity> buildingEntitiess = buildingService.findID(buidingDTO);
+			id = Long.parseLong(request.getParameter("id"));
+			BuildingEntity buildingEntitiess = buildingService.findID(id);
 			mapper.writeValue(response.getOutputStream(), buildingEntitiess);
 			break;
 		default:

@@ -11,11 +11,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.laptrinhjavaweb.annotation.Column;
 import com.laptrinhjavaweb.annotation.Table;
 import com.laptrinhjavaweb.mapper.ResultSetMapper;
+import com.laptrinhjavaweb.paging.Pageble;
+import com.laptrinhjavaweb.paging.Sorter;
 import com.laptrinhjavaweb.repository.GenericJDBC;
 
 public class AbstractJDBC<T> implements GenericJDBC<T> {
@@ -208,43 +212,25 @@ public class AbstractJDBC<T> implements GenericJDBC<T> {
 	}
 
 	@Override
-	public void delete(Object object) {
+	public void delete(long id) {
 		// TODO Auto-generated method stub
 		Connection conn = null;
 		PreparedStatement statement = null;
 		try {
 			conn = getConnection();
 			conn.setAutoCommit(false);
-			String sql = createSQLDelete();
-			// zClass: BuildingEntity
-			// tableName: building
+			
+			String tableName = "";
+			if (zClass.isAnnotationPresent(Table.class)) {
+				Table table = zClass.getAnnotation(Table.class);
+				tableName = table.name();
+			}
+			
+			String sql = "DELETE FROM "+tableName+" WHERE id = ?";
 
 			statement = conn.prepareStatement(sql);
 			if (conn != null) {
-
-				// check parent class
-				Class<?> parentClass = zClass.getSuperclass();
-				int indexParent = 0;
-				Object id = null;
-				while (parentClass != null) {
-
-					for (int i = 0; i < parentClass.getDeclaredFields().length; i++) {
-						Field field = parentClass.getDeclaredFields()[i]; // lấy field từ class parent (createBy,
-																			// CreateDate)
-						System.out.println(i + "--" + field);
-						field.setAccessible(true); // object cũng giống như một cô gái, muộn đụng vô thì phải xin cấp
-													// quyền
-
-						String name = field.getName();
-						if (name.equals("id")) {
-							id = field.get(object);
-							indexParent = indexParent + 1;
-							break;
-						}
-					}
-					parentClass = parentClass.getSuperclass();
-				}
-				statement.setObject(indexParent, id);
+				statement.setObject(1, id);
 				statement.executeUpdate();
 				conn.commit();
 			}
@@ -267,6 +253,56 @@ public class AbstractJDBC<T> implements GenericJDBC<T> {
 		}
 	}
 
+
+
+	@Override
+	public List<T> search(Map<String, Object> property, Pageble pageble, Object... where) {
+		// TODO Auto-generated method stub
+		Connection conn = null;
+		Statement statement = null;
+		ResultSet resultset = null;
+
+		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
+		
+		StringBuilder sql = createSQLSearch(property);
+		if(where != null && where.length>0) {
+			sql.append(where[0]);
+		}
+		
+		if(pageble != null) {
+			if(pageble.getSorter()!=null) {
+				Sorter sorter = pageble.getSorter();
+				sql.append(" ORDER BY "+sorter.getSortName()+" "+sorter.getSortBy()+"");
+			}
+			if(pageble.getObject()!=null && pageble.getLimit()!=null) {
+				sql.append(" LIMIT "+pageble.getObject()+", "+pageble.getLimit()+"");
+			}		
+		}
+
+		try {
+			conn = getConnection();
+
+			statement = conn.createStatement();
+			resultset = statement.executeQuery(sql.toString());
+			if (conn != null) {
+				return resultSetMapper.mapRow(resultset, this.zClass);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			try {
+				conn.close();
+				statement.close();
+				resultset.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	/*
 	@Override
 	public List<T> search(Object object, Integer page, String sortBy, String sortType) {
 
@@ -342,63 +378,42 @@ public class AbstractJDBC<T> implements GenericJDBC<T> {
 		}
 		return null;
 	}
+	*/
+	
 
 	@Override
-	public List<T> findByID(Object object) {
+	public <T> T findByID(long id) {
+		// TODO Auto-generated method stub
 		Connection conn = null;
 		PreparedStatement statement = null;
 		ResultSet resultset = null;
 
-		List<T> id = new ArrayList<>();
 		ResultSetMapper<T> resultSetMapper = new ResultSetMapper<>();
+		
+		String tableName = "";
+		if (zClass.isAnnotationPresent(Table.class)) {
+			Table table = zClass.getAnnotation(Table.class);
+			tableName = table.name();
+		}
+		
+		String sql = "SELECT * FROM "+tableName+" WHERE id = ?";
+
 		try {
 			conn = getConnection();
-			conn.setAutoCommit(false);
-			String sql = createSQLFindID();
-			statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+			statement = conn.prepareStatement(sql);
+			statement.setObject(1, id);
+			resultset = statement.executeQuery();
 			if (conn != null) {
-
-				// check parent class
-				Class<?> parentClass = zClass.getSuperclass();
-				int indexParent = 0;
-				Object ids = null;
-				while (parentClass != null) {
-
-					for (int i = 0; i < parentClass.getDeclaredFields().length; i++) {
-						Field field = parentClass.getDeclaredFields()[i]; // lấy field từ class parent (createBy,
-																			// CreateDate)
-						field.setAccessible(true); // object cũng giống như một cô gái, muộn đụng vô thì phải xin cấp
-													// quyền
-
-						String name = field.getName();
-						if (name.equals("id")) {
-							ids = field.get(object);
-							indexParent = indexParent + 1;
-							break;
-						}
-						indexParent = indexParent + 1;
-					}
-					parentClass = parentClass.getSuperclass();
-				}
-				statement.setObject(indexParent, ids);
-				resultset = statement.executeQuery();
-				System.out.println(statement);
-				
-				conn.commit();
-				return resultSetMapper.mapRow(resultset, this.zClass);
+				return resultSetMapper.mapRow(resultset, this.zClass).get(0);
 			}
 		} catch (Exception e) {
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			System.out.println(e.getMessage());
 		} finally {
 			try {
 				conn.close();
 				statement.close();
+				resultset.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -513,43 +528,39 @@ public class AbstractJDBC<T> implements GenericJDBC<T> {
 		System.out.println(sql);
 		return sql;
 	}
-
-	private String createSQLDelete() {
-		// ĐÂY LÀ PHƯƠNG THỨC TẠO CÂU SQL
+	
+	private StringBuilder createSQLSearch(Map<String, Object> property) {
+		// TODO Auto-generated method stub
+		
 		String tableName = "";
 		if (zClass.isAnnotationPresent(Table.class)) {
 			Table table = zClass.getAnnotation(Table.class);
 			tableName = table.name();
 		}
-
-		// KHÚC KHÁC VỚI INSERT
-		String where = null;
-
-		// VIẾT QUERY CHO CLASS CHA - (createBy, createDate....) values (?,?,...)
-		// check parent class
-		Class<?> parentClass = zClass.getSuperclass();
-		while (parentClass != null) {
-			for (Field field : parentClass.getDeclaredFields()) { // get mảng các column trong entity thằng cha
-				if (field.isAnnotationPresent(Column.class)) {
-					Column column = field.getAnnotation(Column.class);
-					String columnName = column.name();
-					String value = columnName + " = ?";
-					System.out.println(columnName);
-					if (columnName.equals("id")) {
-						where = " WHERE " + value;
-						break;
-					}
-				}
+		
+		StringBuilder result = new StringBuilder("SELECT * FROM "+tableName+ " WHERE 1=1");
+		if(property != null && property.size() > 0) {
+			String[] params = new String[property.size()];
+			Object[] values = new Object[property.size()];
+			int i = 0;
+			for (Map.Entry<?,?> item: property.entrySet()) {
+				params[i] = (String) item.getKey();
+				values[i] = item.getValue();
+				i++;
 			}
-			parentClass = parentClass.getSuperclass();
+			for (int j = 0; j < values.length; j++) {
+				if(values[j] instanceof String) {
+					result.append(" AND LOWER("+params[j]+") LIKE '%"+values[j]+"%'");
+				}else if(values[j] instanceof Integer) {
+					result.append(" AND "+params[j]+"="+values[j]+"");
+				}
+				
+			}
 		}
-
-		// QUERY DELETE
-		String sql = "DELETE FROM " + tableName + where;
-		System.out.println(sql);
-		return sql;
+		return result;
 	}
 
+	/*
 	private String createSQLSearch(Integer page, String sortBy, String sortType) {
 		// ĐÂY LÀ PHƯƠNG THỨC TẠO CÂU SQL
 		String tableName = "";
@@ -599,40 +610,5 @@ public class AbstractJDBC<T> implements GenericJDBC<T> {
 		System.out.println(sql);
 		return sql;
 	}
-
-	private String createSQLFindID() {
-		// ĐÂY LÀ PHƯƠNG THỨC TẠO CÂU SQL
-		String tableName = "";
-		if (zClass.isAnnotationPresent(Table.class)) {
-			Table table = zClass.getAnnotation(Table.class);
-			tableName = table.name();
-		}
-
-		// KHÚC KHÁC VỚI INSERT
-		String where = null;
-
-		// VIẾT QUERY CHO CLASS CHA - (createBy, createDate....) values (?,?,...)
-		// check parent class
-		Class<?> parentClass = zClass.getSuperclass();
-		while (parentClass != null) {
-			for (Field field : parentClass.getDeclaredFields()) { // get mảng các column trong entity thằng cha
-				if (field.isAnnotationPresent(Column.class)) {
-					Column column = field.getAnnotation(Column.class);
-					String columnName = column.name();
-					String value = columnName + " = ?";
-					System.out.println(columnName);
-					if (columnName.equals("id")) {
-						where = " WHERE " + value;
-						break;
-					}
-				}
-			}
-			parentClass = parentClass.getSuperclass();
-		}
-
-		// QUERY DELETE
-		String sql = "SELECT * FROM " + tableName + where;
-		System.out.println(sql);
-		return sql;
-	}
+	*/
 }

@@ -3,10 +3,12 @@ package com.laptrinhjavaweb.service.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.laptrinhjavaweb.converter.BuildingConverter;
 import com.laptrinhjavaweb.dto.BuildingDTO;
 import com.laptrinhjavaweb.entity.BuildingEntity;
+import com.laptrinhjavaweb.paging.Pageble;
 import com.laptrinhjavaweb.repository.IBuildingRepository;
 import com.laptrinhjavaweb.repository.impl.BuildingRepository;
 import com.laptrinhjavaweb.service.IBuildingService;
@@ -41,28 +43,21 @@ public class BuildingService implements IBuildingService {
 	}
 
 	@Override
-	public BuildingDTO delete(BuildingDTO building) {
+	public void delete(long id) {
 		// TODO Auto-generated method stub
-		BuildingConverter buildingConverter = new BuildingConverter();
-		BuildingEntity buildingEntity = buildingConverter.convertToEntity(building);
-		buildingRepository.delete(buildingEntity);
-		return null;
-	}
-
-	@Override
-	public List<BuildingEntity> search(BuildingDTO building, Integer page, String sortBy, String sortType) {
-		// TODO Auto-generated method stub
-		BuildingConverter buildingConverter = new BuildingConverter();
-		BuildingEntity buildingEntity = buildingConverter.convertToEntity(building);
-		return buildingRepository.search(buildingEntity,page,sortBy,sortType);
+		buildingRepository.delete(id);
 	}
 	
 	@Override
-	public List<BuildingEntity> findID(BuildingDTO building) {
+	public BuildingEntity findID(long id) {
 		// TODO Auto-generated method stub
-		BuildingConverter buildingConverter = new BuildingConverter();
-		BuildingEntity buildingEntity = buildingConverter.convertToEntity(building);
-		return buildingRepository.findByID(buildingEntity);
+		return buildingRepository.findByID(id);
+	}
+
+	@Override
+	public List<BuildingEntity> search(Map<String, Object> property, Pageble pageble, Object... where) {
+		// TODO Auto-generated method stub
+		return buildingRepository.search((Map<String, Object>) property,pageble,where);
 	}
 
 }
