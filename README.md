@@ -20,6 +20,9 @@
 - [3. Fix chức năng sort và phân trang](#362019sort)
 - [4. Fix chức năng xóa](#362019delete)
 
+[IV. Bài tập ngày 12/6/2019](#1262019)
+- [1. Thêm giao diện search và create](#1262019GUI)
+
 ===========================
 
 <a name="Modau"></a>
@@ -106,4 +109,12 @@ Xin chào, Today I Learn
 - Là void, không trả về bất cứ thứ gì.
 - https://youtu.be/_X3CahZwRJQ
 
+<a name="1262019"></a>
+## IV. Bài tập ngày 12/6/2019
 
+<a name="1262019GUI"></a>
+### 1. Thêm giao diện search và create
+
+- Giao diện search.
+- Giao diện create
+- https://youtu.be/prfwuGW22gs?list=PLabnTFbva3l0aGsFsuf4Ku9TjZcpRAo2i
