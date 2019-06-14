@@ -50,6 +50,20 @@
                     </a>
                     <b class="arrow"></b>
                 </li>
+                <li>
+                    <a href='<c:url value="/admin-search-building"/>'>
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Tìm kiếm tòa nhà
+                    </a>
+                    <b class="arrow"></b>
+                </li>
+                <li>
+                    <a href='<c:url value="/admin-create-building"/>'>
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Thêm tòa nhà
+                    </a>
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
     </ul>
